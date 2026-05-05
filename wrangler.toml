@@ -6,3 +6,7 @@ pages_build_output_dir = "."
 binding = "DB"
 database_name = "j2st-db"
 database_id = "5e8a2cdf-5bdd-4180-8dae-b2c171f9d6e0"
+
+[[r2_buckets]]
+binding = "ASSETS_R2"
+bucket_name = "j2st-assets"

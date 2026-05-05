@@ -417,17 +417,48 @@ document.addEventListener('DOMContentLoaded', async () => {
                     return; 
                 }
                 if (name) name.textContent = file.name;
+
+                // 1. Show local preview immediately
                 const reader = new FileReader();
-                reader.onload = async (ev) => {
+                reader.onload = (ev) => {
+                    if (callback) callback(ev.target.result);
+                };
+                reader.readAsDataURL(file);
+
+                // 2. Upload to Cloudflare R2
+                (async () => {
                     const status = document.createElement('div');
                     status.style.cssText = 'position:fixed;bottom:20px;right:20px;background:rgba(255,255,255,0.1);padding:10px 20px;border-radius:8px;backdrop-filter:blur(10px);z-index:1000;font-size:12px;';
-                    status.textContent = 'Uploading...';
+                    status.textContent = 'Uploading to Cloud...';
                     document.body.appendChild(status);
+
                     try {
                         if (!currentUser) throw new Error("No user logged in");
-                        await saveAsset(`${currentUser}_${key}`, ev.target.result);
-                        if (callback) callback(ev.target.result);
-                        status.textContent = 'Upload Successful!';
+                        
+                        const formData = new FormData();
+                        formData.append('file', file);
+                        formData.append('key', `${currentUser}_${key}`);
+
+                        const res = await fetch('/api/upload', {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        const result = await res.json();
+                        if (!result.success) throw new Error(result.error);
+
+                        // Save type to appearanceData so profile knows how to render
+                        appearanceData[`${key}Type`] = file.type;
+                        saveAppearanceToLocal();
+
+                        // Also save to local IndexedDB for fallback/cache
+                        const reader = new FileReader();
+                        reader.onload = async (ev) => {
+                            await saveAsset(`${currentUser}_${key}`, ev.target.result);
+                        };
+                        reader.readAsDataURL(file);
+
+                        status.textContent = 'Global Upload Successful!';
                         status.style.background = 'rgba(74, 222, 128, 0.2)';
                         setTimeout(() => status.remove(), 2000);
                     } catch (err) {
@@ -435,18 +466,24 @@ document.addEventListener('DOMContentLoaded', async () => {
                         status.textContent = 'Upload Failed: ' + (err.message || 'Storage error');
                         status.style.background = 'rgba(255,0,0,0.2)';
                         setTimeout(() => status.remove(), 5000);
+                        showToast("Cloud upload failed. File will only be visible to you.", "error");
                     }
-                };
-                reader.readAsDataURL(file);
+                })();
             }
         });
     }
 
     handleFile('input-avatar-file', 'avatar-file-name', 'avatar', (data) => {
-        const preview = document.querySelector('.preview-avatar');
-        if (preview) {
-            preview.style.backgroundImage = data.startsWith('data:video/') ? 'none' : `url(${data})`;
-            preview.style.backgroundSize = 'cover';
+        const previewWrapper = document.querySelector('.preview-avatar');
+        if (previewWrapper) {
+            if (data.startsWith('data:video/')) {
+                previewWrapper.style.backgroundImage = 'none';
+                previewWrapper.innerHTML = `<video src="${data}" autoplay loop muted playsinline style="width:100%; height:100%; object-fit:cover; border-radius:50%;"></video>`;
+            } else {
+                previewWrapper.innerHTML = '';
+                previewWrapper.style.backgroundImage = `url(${data})`;
+                previewWrapper.style.backgroundSize = 'cover';
+            }
         }
     });
     handleFile('input-background-file', 'background-file-name', 'background');
@@ -707,10 +744,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         const avatarData = await getAsset(`${currentUser}_avatar`);
         if (avatarData) {
-            const preview = document.querySelector('.preview-avatar');
-            if (preview) {
-                preview.style.backgroundImage = avatarData.startsWith('data:video/') ? 'none' : `url(${avatarData})`;
-                preview.style.backgroundSize = 'cover';
+            const previewWrapper = document.querySelector('.preview-avatar');
+            if (previewWrapper) {
+                if (avatarData.startsWith('data:video/')) {
+                    previewWrapper.style.backgroundImage = 'none';
+                    previewWrapper.innerHTML = `<video src="${avatarData}" autoplay loop muted playsinline style="width:100%; height:100%; object-fit:cover; border-radius:50%;"></video>`;
+                } else {
+                    previewWrapper.innerHTML = '';
+                    previewWrapper.style.backgroundImage = `url(${avatarData})`;
+                    previewWrapper.style.backgroundSize = 'cover';
+                }
             }
         }
     } catch (e) { console.error("Asset load error:", e); }

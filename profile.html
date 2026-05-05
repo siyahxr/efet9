@@ -171,16 +171,26 @@
                     const extraEffects = appearance?.extraEffects || [];
                     const viewsCount = profileData?.views || 0;
 
+                    const fetchAsset = async (key) => {
+                        const local = await getAsset(`${username}_${key}`);
+                        if (local) return local;
+                        // Fallback to server
+                        return `/api/assets?key=${username}_${key}`;
+                    };
+
                     const [avatarData, backgroundData, musicData] = await Promise.all([
-                        getAsset(`${username}_avatar`),
-                        getAsset(`${username}_background`),
-                        getAsset(`${username}_music`)
+                        fetchAsset('avatar'),
+                        fetchAsset('background'),
+                        fetchAsset('music')
                     ]);
 
                     if (musicData) {
                         window.pendingMusic = musicData;
                         if (window.overlayRemoved) {
-                            const a = new Audio(musicData); a.loop = true; a.play().catch(e => console.error('Audio play failed:', e));
+                            const a = new Audio(musicData); a.loop = true; a.play().catch(e => {
+                                // If it's a URL, it might need user interaction or might be 404
+                                console.error('Audio play failed:', e);
+                            });
                         }
                     }
 
@@ -241,7 +251,8 @@
                     }
 
                     if (backgroundData) {
-                        if (backgroundData.startsWith('data:video/')) {
+                        const isVideoBg = (backgroundData.startsWith('data:video/')) || (appearance.backgroundType && appearance.backgroundType.startsWith('video/'));
+                        if (isVideoBg) {
                             const v = document.createElement('video'); v.src = backgroundData; v.autoplay=v.loop=v.muted=v.playsInline=true;
                             v.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:-2;';
                             document.body.appendChild(v);
@@ -260,11 +271,24 @@
                             </div>
                         ` : '';
 
+                        let avatarHtml = '';
+                        const isVideoAvatar = (avatarData && avatarData.startsWith('data:video/')) || (appearance.avatarType && appearance.avatarType.startsWith('video/'));
+                        
+                        if (avatarData) {
+                            if (isVideoAvatar) {
+                                avatarHtml = `<video src="${avatarData}" autoplay loop muted playsinline style="width:100%; height:100%; object-fit:cover; border-radius:50%; position:relative; z-index:2;"></video>`;
+                            } else {
+                                avatarHtml = `<div class="avatar" style="background-image: url('${avatarData}'); background-size: cover; background-position: center;"></div>`;
+                            }
+                        } else {
+                            avatarHtml = `<div class="avatar">${username[0].toUpperCase()}</div>`;
+                        }
+
                         mainContent.innerHTML = `
                             ${flaggedWarning}
                             <div class="avatar-wrapper ${appearance?.avatarEffect || ''}">
                                 <div class="avatar-effect-overlay"></div>
-                                <div class="avatar" style="background-image: url('${avatarData || ''}')">${!avatarData ? username[0].toUpperCase() : ''}</div>
+                                ${avatarHtml}
                             </div>
                             <h2 class="display-name">${dispName}</h2>
                             <p class="bio">${bioText}</p>
