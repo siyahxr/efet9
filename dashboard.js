@@ -134,18 +134,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         const response = await fetch(`/api/profile?u=${currentUser}`);
         if (response.ok) {
             const data = await response.json();
-            if (data.success && data.links && data.links.length > 0) {
-                userLinks = data.links;
+            if (data.success) {
+                userLinks = data.links || [];
+                appearanceData = { ...appearanceData, ...(data.appearance || {}) };
+                
+                // Update Analytics UI
+                const totalViewsEl = document.getElementById('total-views');
+                if (totalViewsEl && data.views !== undefined) {
+                    totalViewsEl.textContent = data.views.toLocaleString();
+                }
+
                 localStorage.setItem(`j2st_links_${currentUser}`, JSON.stringify(userLinks));
-            } else {
-                userLinks = JSON.parse(localStorage.getItem(`j2st_links_${currentUser}`)) || [];
+                localStorage.setItem(`j2st_appearance_${currentUser}`, JSON.stringify(appearanceData));
             }
-        } else {
-            userLinks = JSON.parse(localStorage.getItem(`j2st_links_${currentUser}`)) || [];
         }
     } catch (e) { 
         console.error("Fetch error:", e); 
-        userLinks = JSON.parse(localStorage.getItem(`j2st_links_${currentUser}`)) || [];
     }
 
     const SOCIAL_ICONS = {
@@ -610,34 +614,71 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 4000);
     };
 
-    // --- Change Password Logic ---
-    const changePasswordBtn = document.getElementById('change-password-btn');
-    if (changePasswordBtn) {
-        changePasswordBtn.onclick = async () => {
-            const currentPassword = document.getElementById('current-password').value;
-            const newPassword = document.getElementById('new-password').value;
+    // --- Account Settings Logic ---
+    const updateUsernameBtn = document.getElementById('btn-update-username');
+    const updatePasswordBtn = document.getElementById('btn-update-password');
 
-            if (!currentPassword || !newPassword) return showToast('Please fill all fields', 'error');
-            if (newPassword.length < 6) return showToast('New password must be at least 6 characters', 'error');
+    if (updateUsernameBtn) {
+        updateUsernameBtn.onclick = async () => {
+            const newUsername = document.getElementById('new-username').value.trim();
+            if (!newUsername || newUsername.length < 3) return showToast('Username too short', 'error');
+            if (newUsername === currentUser) return showToast('This is already your username', 'info');
 
-            const oldText = changePasswordBtn.innerText;
-            changePasswordBtn.innerText = 'Updating...';
-            changePasswordBtn.disabled = true;
+            const oldText = updateUsernameBtn.innerText;
+            updateUsernameBtn.innerText = 'Updating...';
+            updateUsernameBtn.disabled = true;
 
             try {
-                const response = await fetch('/api/save', {
+                const res = await fetch('/api/save', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         username: currentUser, 
-                        current_password: currentPassword, 
-                        new_password: newPassword 
+                        action: 'update_username', 
+                        new_username: newUsername 
                     })
                 });
-
-                const data = await response.json();
+                const data = await res.json();
                 if (data.success) {
-                    showToast('Password updated successfully!', 'success');
+                    showToast('Username updated! Redirecting...', 'success');
+                    localStorage.setItem('j2st_currentUser', newUsername);
+                    setTimeout(() => window.location.href = '/dashboard', 1500);
+                } else {
+                    showToast(data.error || 'Failed to update username', 'error');
+                }
+            } catch (err) { showToast('Server error', 'error'); }
+            
+            updateUsernameBtn.innerText = oldText;
+            updateUsernameBtn.disabled = false;
+        };
+    }
+
+    if (updatePasswordBtn) {
+        updatePasswordBtn.onclick = async () => {
+            const currentPass = document.getElementById('current-password').value;
+            const newPass = document.getElementById('new-password').value;
+
+            if (!currentPass || !newPass) return showToast('Fill all fields', 'error');
+            if (newPass.length < 6) return showToast('New password too short', 'error');
+
+            const oldText = updatePasswordBtn.innerText;
+            updatePasswordBtn.innerText = 'Updating...';
+            updatePasswordBtn.disabled = true;
+
+            try {
+                const res = await fetch('/api/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        username: currentUser, 
+                        action: 'update_password', 
+                        current_password: currentPass, 
+                        new_password: newPass 
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('Password updated!', 'success');
                     document.getElementById('current-password').value = '';
                     document.getElementById('new-password').value = '';
                 } else {
@@ -645,8 +686,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             } catch (err) { showToast('Server error', 'error'); }
 
-            changePasswordBtn.innerText = oldText;
-            changePasswordBtn.disabled = false;
+            updatePasswordBtn.innerText = oldText;
+            updatePasswordBtn.disabled = false;
         };
     }
 
