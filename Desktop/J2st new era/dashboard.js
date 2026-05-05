@@ -422,20 +422,24 @@ document.addEventListener('DOMContentLoaded', async () => {
                         formData.append('file', file);
                         formData.append('key', `${currentUser}_${key}`);
 
-                        const res = await fetch('/api/upload', {
+                        const res = await fetch('/api/upload-file', {
                             method: 'POST',
                             body: formData
                         });
 
-                        if (!res.ok) {
-                            const errorText = await res.text();
-                            let errorData;
-                            try { errorData = JSON.parse(errorText); } catch(e) { errorData = { error: errorText || 'Unknown Server Error' }; }
-                            throw new Error(errorData.error || `Server returned ${res.status}`);
+                        let result;
+                        const responseText = await res.text();
+                        
+                        try {
+                            result = JSON.parse(responseText);
+                        } catch (parseError) {
+                            console.error("Server raw response:", responseText);
+                            throw new Error("Server returned an invalid response. Check console for details.");
                         }
 
-                        const result = await res.json();
-                        if (!result.success) throw new Error(result.error);
+                        if (!res.ok || !result.success) {
+                            throw new Error(result.error || `Server Error (${res.status})`);
+                        }
 
                         // Save type to appearanceData so profile knows how to render
                         appearanceData[`${key}Type`] = file.type;
