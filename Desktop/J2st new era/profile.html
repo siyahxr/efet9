@@ -172,9 +172,12 @@
                     const viewsCount = profileData?.views || 0;
 
                     const fetchAsset = async (key) => {
+                        // 1. Check local browser cache
                         const local = await getAsset(`${username}_${key}`);
                         if (local) return local;
-                        // Fallback to server
+                        // 2. Check if asset is embedded in profile data (D1 fallback)
+                        if (profileData && profileData[key]) return profileData[key];
+                        // 3. Try R2 server
                         return `/api/assets?key=${username}_${key}`;
                     };
 

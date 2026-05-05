@@ -569,18 +569,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         const effectName = activeBtn ? activeBtn.dataset.effect : 'none';
         appearanceData.avatarEffect = effectName;
 
+        // Get assets for global fallback
+        let avatarBase64 = null;
+        let backgroundBase64 = null;
+        try {
+            avatarBase64 = await getAsset(`${currentUser}_avatar`);
+            backgroundBase64 = await getAsset(`${currentUser}_background`);
+        } catch (e) { console.warn("Asset fetch for save failed:", e); }
+
         const payload = {
             username: currentUser,
             display_name: appearanceData.displayName,
             bio: appearanceData.bio,
             location: appearanceData.location,
-            discord_id: appearanceData.discordId,
-            appearance: {
-                ...appearanceData,
-                avatarEffect: effectName
-            },
+            theme: appearanceData.theme,
+            avatarEffect: appearanceData.avatarEffect,
+            extraEffects: appearanceData.extraEffects,
+            discordId: appearanceData.discordId,
+            badges: appearanceData.badges,
+            font: appearanceData.font,
+            presence: appearanceData.presence || 'online',
             links: userLinks,
-            music_title: appearanceData.musicTitle
+            music_title: appearanceData.musicTitle,
+            avatarType: appearanceData.avatarType,
+            backgroundType: appearanceData.backgroundType,
+            // Fallback assets (saved to D1 if small enough)
+            avatar: avatarBase64,
+            background: backgroundBase64
         };
 
         console.log("[DEBUG] Saving payload:", payload);
