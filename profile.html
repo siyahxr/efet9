@@ -165,10 +165,11 @@
                     const localAppearance = JSON.parse(localStorage.getItem(`j2st_appearance_${username}`)) || {};
                     const localLinks = JSON.parse(localStorage.getItem(`j2st_links_${username}`)) || [];
                     
-                    const appearance = profileData ? (profileData.appearance || {}) : localAppearance;
-                    const links = profileData ? (profileData.links || []) : localLinks;
-                    const badges = profileData ? (profileData.badges || []) : (appearance?.badges || []);
+                    const appearance = profileData?.appearance || profileData || localAppearance;
+                    const links = profileData?.links || localLinks;
+                    const badges = profileData?.badges || appearance?.badges || [];
                     const extraEffects = appearance?.extraEffects || [];
+                    const viewsCount = profileData?.views || 0;
 
                     const [avatarData, backgroundData, musicData] = await Promise.all([
                         getAsset(`${username}_avatar`),
@@ -185,7 +186,11 @@
 
                     const linksHtml = links.map(l => l.url ? `<a href="${l.url}" target="_blank" class="link-badge">${SOCIAL_ICONS[l.platform] || SOCIAL_ICONS.custom}</a>` : '').join('');
                     document.body.style.fontFamily = appearance.font || 'Inter';
-                    const dispName = profileData ? profileData.display_name : (appearance?.displayName || username);
+                    
+                    const dispName = appearance.displayName || appearance.display_name || username;
+                    const bioText = appearance.bio || profileData?.bio || 'No bio yet.';
+                    const locText = appearance.location || profileData?.location || 'Internet';
+                    
                     document.title = `${dispName} | J2ST`;
 
                     if (extraEffects.includes('scanlines')) { const d = document.createElement('div'); d.className='scanlines'; document.body.appendChild(d); }
@@ -262,8 +267,8 @@
                                 <div class="avatar" style="background-image: url('${avatarData || ''}')">${!avatarData ? username[0].toUpperCase() : ''}</div>
                             </div>
                             <h2 class="display-name">${dispName}</h2>
-                            <p class="bio">${profileData ? profileData.bio : (appearance?.bio || 'No bio yet.')}</p>
-                            <div class="location-box"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>${profileData ? profileData.location : (appearance?.location || 'Internet')}</div>
+                            <p class="bio">${bioText}</p>
+                            <div class="location-box"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>${locText}</div>
                             <div class="discord-card" id="discord-card" style="display: ${appearance?.discordId ? 'flex' : 'none'}">
                                 <div class="discord-avatar-container">
                                     <img src="" class="discord-avatar" id="ds-avatar">
@@ -275,7 +280,7 @@
                                 </div>
                             </div>
                             <div class="links-container">${linksHtml}</div>
-                            <div style="font-size:10px;opacity:0.3;margin-bottom:30px;display:flex;align-items:center;gap:5px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>${analytics.views} views</div>
+                            <div style="font-size:10px;opacity:0.3;margin-bottom:30px;display:flex;align-items:center;gap:5px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>${viewsCount} views</div>
                             <a href="/" class="j2st-branding"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>Powered by J2ST</a>
                         `;
                     }

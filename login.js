@@ -31,8 +31,8 @@ export async function onRequestPost(context) {
             }
         }
 
-        return new Response(JSON.stringify({ success: false, error: 'Invalid credentials' }), { status: 401 });
+        return new Response(JSON.stringify({ success: false, error: 'User not found or password incorrect.' }), { status: 401 });
     } catch (e) {
-        return new Response(JSON.stringify({ success: false, error: 'Database error' }), { status: 500 });
+        return new Response(JSON.stringify({ success: false, error: 'Server Error: ' + e.message }), { status: 500 });
     }
 }
