@@ -1,0 +1,11 @@
+# Veritabanı ve Yerel Configler
+db.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+venv/
+env/
+.venv/

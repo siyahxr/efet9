@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J2ST - Empower Your Digital Presence</title>
+    <meta name="description" content="Create your personal profile website with J2ST.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+
+<body>
+
+    <div class="background-wrapper">
+        <canvas id="bg-particles"></canvas>
+    </div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="/" class="logo">J2ST</a>
+            </div>
+            <div class="nav-right">
+                <a href="/shop" class="shop-btn">Shop</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero-section">
+            <div class="hero-content">
+                <a href="https://discord.gg/1841" target="_blank" class="community-link">Join our discord community
+                    server!</a>
+                <h1 class="hero-title">Empower Your Digital <br> Presence <span class="highlight">Easy & Fast</span>
+                </h1>
+                <p class="hero-subtitle">J2ST is your essential platform for creating modern, customizable bio-pages.
+                </p>
+                <div class="cta-group">
+                    <button class="btn-secondary" id="login-trigger">Login</button>
+                    <button class="btn-primary" id="signup-trigger">Get Started</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Auth Modal -->
+    <div class="modal-overlay" id="auth-modal">
+        <div class="modal-box">
+            <button class="close-modal">&times;</button>
+            <div class="auth-header">
+                <h2>Sign In</h2>
+                <p>Welcome back to J2ST</p>
+            </div>
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Login</button>
+                <button class="auth-tab" data-tab="signup">Sign Up</button>
+            </div>
+
+            <div class="auth-view active" id="login-view">
+                <button disabled style="width: 100%; margin-bottom: 25px; display: flex; align-items: center; justify-content: center; padding: 12px; background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.5); border: 1px dashed rgba(255,255,255,0.2); border-radius: 8px; cursor: not-allowed; font-weight: 500;">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" style="margin-right: 10px; opacity: 0.5;"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"></path><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"></path><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"></path><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"></path></svg>
+                    Google Login (Coming Soon)
+                </button>
+                <div class="divider"><span>OR</span></div>
+                <div class="input-group">
+                    <label>Username</label>
+                    <input type="text" id="login-username" placeholder="johndoe">
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="login-password" placeholder="••••••••">
+                </div>
+                <button id="login-submit-btn" class="btn-primary full-width">Sign In</button>
+            </div>
+
+            <div class="auth-view" id="signup-view">
+                <button disabled style="width: 100%; margin-bottom: 25px; display: flex; align-items: center; justify-content: center; padding: 12px; background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.5); border: 1px dashed rgba(255,255,255,0.2); border-radius: 8px; cursor: not-allowed; font-weight: 500;">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" style="margin-right: 10px; opacity: 0.5;"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"></path><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"></path><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"></path><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"></path></svg>
+                    Google Sign Up (Coming Soon)
+                </button>
+                <div class="divider"><span>OR</span></div>
+                <div class="input-group">
+                    <label>Username (3-12 characters)</label>
+                    <input type="text" placeholder="johndoe" id="modal-username-input">
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="modal-password-input" placeholder="••••••••">
+                </div>
+                <button id="signup-submit-btn" class="btn-primary full-width">Create Account</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/script.js"></script>
+</body>
+
+</html>

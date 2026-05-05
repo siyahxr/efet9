@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - J2ST</title>
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .checkout-container { max-width: 1000px; margin: 120px auto; padding: 0 40px; display: grid; grid-template-columns: 1fr 380px; gap: 60px; }
+        .checkout-header { grid-column: 1 / -1; margin-bottom: -20px; }
+        .checkout-header h1 { font-size: 48px; font-weight: 900; letter-spacing: -2px; }
+
+        .payment-section { background: rgba(10, 10, 10, 0.6); border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; padding: 40px; backdrop-filter: blur(20px); }
+        .section-title { font-size: 18px; font-weight: 800; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 1px; color: #fff; display: flex; align-items: center; gap: 10px; }
+        .section-title::before { content: ''; width: 4px; height: 18px; background: #fff; border-radius: 2px; }
+
+        .payment-methods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 40px; }
+        .method-card { 
+            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); 
+            border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: 0.3s;
+        }
+        .method-card:hover, .method-card.active { background: rgba(255,255,255,0.08); border-color: #fff; }
+        .method-card i { font-size: 24px; display: block; margin-bottom: 10px; }
+        .method-label { font-size: 12px; font-weight: 800; text-transform: uppercase; }
+
+        .payment-form .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .payment-form .input-group { margin-bottom: 25px; }
+        .payment-form label { display: block; font-size: 10px; font-weight: 900; color: #555; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px; }
+        .payment-form input { 
+            width: 100%; background: #000; border: 1px solid #1a1a1a; padding: 18px; border-radius: 12px; 
+            color: #fff; font-size: 15px; outline: none; transition: 0.3s;
+        }
+        .payment-form input:focus { border-color: #fff; }
+
+        .summary-section { 
+            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); 
+            border-radius: 24px; padding: 40px; backdrop-filter: blur(20px); height: fit-content;
+            position: sticky; top: 120px;
+        }
+        .summary-item { display: flex; justify-content: space-between; margin-bottom: 20px; font-weight: 600; font-size: 15px; }
+        .summary-total { border-top: 1px solid #222; padding-top: 25px; margin-top: 25px; font-size: 24px; font-weight: 900; }
+
+        .complete-btn { 
+            width: 100%; background: #fff; color: #000; border: none; padding: 20px; 
+            border-radius: 12px; font-weight: 900; text-transform: uppercase; 
+            letter-spacing: 2px; cursor: pointer; transition: 0.4s; margin-top: 20px;
+        }
+        .complete-btn:hover { background: #ccc; transform: translateY(-3px); box-shadow: 0 10px 30px rgba(255,255,255,0.1); }
+
+        .secure-badge { text-align: center; margin-top: 25px; font-size: 12px; color: #444; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+        @media (max-width: 900px) {
+            .checkout-container { grid-template-columns: 1fr; margin: 80px auto; }
+            .summary-section { position: static; }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-wrapper">
+        <canvas id="bg-particles"></canvas>
+    </div>
+
+    <div class="checkout-container">
+        <div class="checkout-header">
+            <a href="/shop" style="color: #444; text-decoration: none; font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">← Return to Shop</a>
+            <h1 style="margin-top: 20px;">Complete Purchase</h1>
+        </div>
+
+        <div class="payment-section">
+            <div class="section-title">Payment Method</div>
+            <div class="payment-methods">
+                <div class="method-card active">
+                    <span class="method-label">Credit Card</span>
+                </div>
+                <div class="method-card">
+                    <span class="method-label">Crypto</span>
+                </div>
+                <div class="method-card">
+                    <span class="method-label">Discord</span>
+                </div>
+            </div>
+
+            <div class="section-title">Card Details</div>
+            <div class="payment-form">
+                <div class="input-group">
+                    <label>Cardholder Name</label>
+                    <input type="text" placeholder="John Doe">
+                </div>
+                <div class="input-group">
+                    <label>Card Number</label>
+                    <input type="text" placeholder="0000 0000 0000 0000">
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Expiry Date</label>
+                        <input type="text" placeholder="MM/YY">
+                    </div>
+                    <div class="input-group">
+                        <label>CVC / CVV</label>
+                        <input type="password" placeholder="***">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="summary-section">
+            <div class="section-title">Order Summary</div>
+            <div class="summary-item">
+                <span style="color: #666;">Plan Selected</span>
+                <span id="plan-name">Ultra Creator</span>
+            </div>
+            <div class="summary-item">
+                <span style="color: #666;">Duration</span>
+                <span>Monthly Billing</span>
+            </div>
+            <div class="summary-item">
+                <span style="color: #666;">Subtotal</span>
+                <span>$2.49</span>
+            </div>
+            <div class="summary-total">
+                <span>Total</span>
+                <span id="total-price">$2.49</span>
+            </div>
+
+            <button class="complete-btn">Purchase Now</button>
+            <div class="secure-badge">
+                🔒 256-bit Encrypted Secure Checkout
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Simple logic to read URL params and update summary
+        const urlParams = new URLSearchParams(window.location.search);
+        const plan = urlParams.get('plan');
+        const price = urlParams.get('price');
+        
+        if (plan) document.getElementById('plan-name').innerText = plan;
+        if (price) {
+            document.getElementById('total-price').innerText = '$' + price;
+            document.querySelectorAll('.summary-item span:last-child')[2].innerText = '$' + price;
+        }
+
+        // Handle Purchase Button
+        const completeBtn = document.querySelector('.complete-btn');
+        if (completeBtn) {
+            completeBtn.addEventListener('click', () => {
+                completeBtn.innerText = 'Processing...';
+                completeBtn.style.pointerEvents = 'none';
+                completeBtn.style.opacity = '0.7';
+                
+                setTimeout(() => {
+                    alert('Purchase completed successfully! Your account has been upgraded.');
+                    window.location.href = '/dashboard';
+                }, 1500);
+            });
+        }
+    </script>
+</body>
+</html>
