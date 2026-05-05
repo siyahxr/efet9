@@ -140,6 +140,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         btn.setAttribute('target', '_blank');
     });
 
+    // --- Appearance Data Initialization (Moved Up) ---
+    let appearanceData = {
+        displayName: '@' + currentUser, bio: 'Welcome!', theme: 'dark', avatarEffect: 'none', location: '', discordId: '', badges: [], musicTitle: 'Background Music', extraEffects: [], font: 'Inter'
+    };
+
     // --- Data Load ---
     let userLinks = [];
     try {
@@ -304,29 +309,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderLinks();
 
     // --- Appearance Logic ---
-    let appearanceData = {
-        displayName: '@' + currentUser, bio: 'Welcome!', theme: 'dark', avatarEffect: 'none', location: '', discordId: '', badges: [], musicTitle: 'Background Music', extraEffects: [], font: 'Inter'
-    };
-    try {
-        const response = await fetch(`/api/profile?u=${currentUser}`);
-        if (response.ok) {
-            const data = await response.json();
-            if (data.success && data.appearance && Object.keys(data.appearance).length > 0) {
-                appearanceData = { ...appearanceData, ...data.appearance };
-                localStorage.setItem(`j2st_appearance_${currentUser}`, JSON.stringify(appearanceData));
-            } else {
-                const saved = JSON.parse(localStorage.getItem(`j2st_appearance_${currentUser}`));
-                if (saved) appearanceData = { ...appearanceData, ...saved };
-            }
-        } else {
-            const saved = JSON.parse(localStorage.getItem(`j2st_appearance_${currentUser}`));
-            if (saved) appearanceData = { ...appearanceData, ...saved };
-        }
-    } catch (e) { 
-        console.error("Fetch error:", e);
-        const saved = JSON.parse(localStorage.getItem(`j2st_appearance_${currentUser}`));
-        if (saved) appearanceData = { ...appearanceData, ...saved };
-    }
+    // (Declaration moved to top)
 
     const inputs = {
         displayName: document.getElementById('input-display-name'),

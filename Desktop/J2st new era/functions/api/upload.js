@@ -1,6 +1,10 @@
 // functions/api/upload.js
-export async function onRequestPost(context) {
+export async function onRequest(context) {
     const { request, env } = context;
+
+    if (request.method !== 'POST') {
+        return new Response('Method Not Allowed', { status: 405 });
+    }
     
     // JSON Header helper
     const jsonResponse = (data, status = 200) => new Response(JSON.stringify(data), {
