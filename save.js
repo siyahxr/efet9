@@ -39,6 +39,7 @@ export async function onRequestPost(context) {
         if (payload.action === 'update_password') {
             const { current_password, new_password } = payload;
             const user = await env.DB.prepare("SELECT password FROM users WHERE username = ?").bind(username).first();
+            if (!user) return new Response(JSON.stringify({ success: false, error: 'User not found in system' }), { status: 404 });
             if (user.password !== current_password) return new Response(JSON.stringify({ success: false, error: 'Current password incorrect' }), { status: 400 });
 
             await env.DB.prepare("UPDATE users SET password = ? WHERE username = ?").bind(new_password, username).run();

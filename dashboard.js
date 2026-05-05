@@ -27,15 +27,21 @@ window.showToast = (message, type = 'info') => {
 function initDB() {
     return new Promise((resolve, reject) => {
         try {
-            const request = indexedDB.open(dbName, 2);
+            // Version incremented to 3 to force store creation if missing
+            const request = indexedDB.open(dbName, 3);
             request.onupgradeneeded = (e) => {
                 const db = e.target.result;
+                console.log("DB Upgrade needed. Current stores:", db.objectStoreNames);
                 if (!db.objectStoreNames.contains(storeName)) {
                     db.createObjectStore(storeName);
+                    console.log("Created object store:", storeName);
                 }
             };
             request.onsuccess = (e) => resolve(e.target.result);
-            request.onerror = (e) => reject(e.target.error);
+            request.onerror = (e) => {
+                console.error("DB Open Error:", e.target.error);
+                reject(e.target.error);
+            };
         } catch (e) {
             reject(e);
         }
@@ -46,6 +52,9 @@ async function saveAsset(key, data) {
     try {
         const db = await initDB();
         return new Promise((resolve, reject) => {
+            if (!db.objectStoreNames.contains(storeName)) {
+                return reject(new Error(`Store "${storeName}" not found. Try clearing browser data or refreshing.`));
+            }
             const tx = db.transaction(storeName, "readwrite");
             const store = tx.objectStore(storeName);
             const request = store.put(data, key);
@@ -69,6 +78,9 @@ async function getAsset(key) {
     try {
         const db = await initDB();
         return new Promise((resolve, reject) => {
+            if (!db.objectStoreNames.contains(storeName)) {
+                return resolve(null); // Silent fail for get
+            }
             const tx = db.transaction(storeName, "readonly");
             const store = tx.objectStore(storeName);
             const request = store.get(key);
@@ -678,11 +690,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
                 const data = await res.json();
                 if (data.success) {
-                    showToast('Password updated!', 'success');
+                    showToast('Password updated! You can now use your new password.', 'success');
                     document.getElementById('current-password').value = '';
                     document.getElementById('new-password').value = '';
                 } else {
-                    showToast(data.error || 'Failed to update password', 'error');
+                    showToast(data.error || 'Failed to update password. Check your current password.', 'error');
                 }
             } catch (err) { showToast('Server error', 'error'); }
 

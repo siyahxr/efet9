@@ -76,7 +76,7 @@
     <script>
         const dbName = "J2ST_DB", storeName = "assets";
         const getAsset = (key) => new Promise((res) => {
-            const req = indexedDB.open(dbName, 2);
+            const req = indexedDB.open(dbName, 3);
             req.onsuccess = (e) => {
                 const db = e.target.result;
                 if (!db.objectStoreNames.contains(storeName)) { res(null); return; }
