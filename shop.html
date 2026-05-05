@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop - Coming Soon | J2ST</title>
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .teaser-container { 
+            min-height: 100vh; display: flex; flex-direction: column; 
+            justify-content: center; align-items: center; text-align: center; 
+            padding: 0 40px; 
+        }
+        .teaser-content { max-width: 800px; transform: translateY(-20px); }
+        
+        .status-badge { 
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); 
+            padding: 10px 25px; border-radius: 100px; font-size: 11px; font-weight: 800; 
+            color: #fff; margin-bottom: 40px; display: inline-block; 
+            text-transform: uppercase; letter-spacing: 3px; 
+        }
+
+        .teaser-title { 
+            font-size: clamp(40px, 8vw, 110px); font-weight: 900; 
+            line-height: 0.9; letter-spacing: -5px; margin-bottom: 30px; 
+            text-transform: uppercase;
+        }
+        .highlight-gray { color: #333; }
+
+        .teaser-subtitle { 
+            font-size: 18px; color: #555; margin-bottom: 50px; 
+            max-width: 500px; margin-left: auto; margin-right: auto; 
+            line-height: 1.6; font-weight: 600; 
+        }
+
+        .back-btn { 
+            background: #fff; color: #000; border: none; padding: 18px 45px; 
+            border-radius: 6px; font-weight: 800; font-size: 14px; 
+            text-transform: uppercase; cursor: pointer; transition: 0.3s; 
+            letter-spacing: 1px; text-decoration: none;
+        }
+        .back-btn:hover { background: #ccc; transform: scale(1.05); }
+
+        .loading-bar { width: 200px; height: 2px; background: #111; margin: 40px auto; position: relative; overflow: hidden; }
+        .loading-bar::after { 
+            content: ''; position: absolute; top: 0; left: 0; width: 40%; 
+            height: 100%; background: #fff; 
+            animation: loading 2s infinite ease-in-out; 
+        }
+
+        @keyframes loading {
+            0% { left: -40%; }
+            100% { left: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-wrapper">
+        <canvas id="bg-particles"></canvas>
+    </div>
+
+    <div class="teaser-container">
+        <div class="teaser-content">
+            <div class="status-badge">Phase: Development</div>
+            <h1 class="teaser-title">Coming <br> <span class="highlight-gray">Soon</span></h1>
+            <p class="teaser-subtitle">We are currently perfecting the shop and premium features. A much bigger and more flawless experience is coming soon.</p>
+            
+            <div class="loading-bar"></div>
+
+            <a href="/" class="back-btn">Return to Home</a>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

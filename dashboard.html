@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J2ST - Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/dashboard.css">
+</head>
+<body class="dashboard-body">
+    <div class="background-wrapper">
+        <canvas id="bg-particles"></canvas>
+    </div>
+
+    <div class="dashboard-container">
+        
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="/" class="logo">J2ST</a>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-target="links">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                    Links
+                </a>
+                <a href="#" class="nav-item" data-target="appearance">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"></path></svg>
+                    Appearance
+                </a>
+                <a href="#" class="nav-item" data-target="analytics">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>
+                    Analytics
+                </a>
+                <a href="#" class="nav-item" data-target="settings">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    Settings
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="avatar" id="user-avatar">JD</div>
+                    <div class="user-info">
+                        <div class="username" id="display-username">@username</div>
+                        <div class="plan">Free Plan</div>
+                    </div>
+                </div>
+                <button id="logout-btn" class="btn-logout">Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Editor Area -->
+        <main class="dashboard-main">
+            <!-- Section: Links -->
+            <div id="section-links" class="dashboard-section active">
+                <header class="dashboard-header">
+                    <div class="header-content">
+                        <h1>Your Links</h1>
+                        <p class="subtitle">Add and manage your social connections.</p>
+                    </div>
+                    <div class="header-actions" style="display: flex; gap: 10px;">
+                        <button class="btn-primary" id="copy-link-btn" style="background: rgba(255,255,255,0.05); color: #ededed; border: 1px solid rgba(255,255,255,0.1);">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            Copy Link
+                        </button>
+                        <button class="btn-primary save-btn">Save Changes</button>
+                        <a href="#" class="btn-secondary view-live-btn">View Live</a>
+                    </div>
+                </header>
+
+                <div class="editor-section">
+                    <button class="btn-primary" id="add-link-btn" style="width: 100%; margin-bottom: 24px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        Add New Link
+                    </button>
+                    <div class="links-container" id="links-container">
+                        <!-- Links will be injected here by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Appearance -->
+            <div id="section-appearance" class="dashboard-section" style="display: none;">
+                <header class="dashboard-header">
+                    <div class="header-content">
+                        <h1>Appearance</h1>
+                        <p class="subtitle">Customize your profile.</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-primary save-btn">Save Changes</button>
+                        <a href="#" class="btn-secondary view-live-btn">View Live</a>
+                    </div>
+                </header>
+                
+                <div class="editor-section">
+                    <div class="settings-card" style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 24px;">
+                        <h3 style="margin-bottom: 20px; color: var(--accent);">Profile Info</h3>
+                        <div class="input-group">
+                            <label>Display Name</label>
+                            <input type="text" id="input-display-name" placeholder="Your Name">
+                        </div>
+                        <div class="input-group" style="margin-top: 16px;">
+                            <label>Avatar (Image/GIF/Video)</label>
+                            <label class="file-upload-label" style="display: block; width: 100%; padding: 12px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.2); border-radius: 8px; text-align: center; cursor: pointer; color: #ededed; transition: all 0.3s;">
+                                <span id="avatar-file-name">Click to upload avatar</span>
+                                <input type="file" id="input-avatar-file" accept="image/*,video/mp4,video/quicktime,video/webm,video/ogg" style="display: none;">
+                            </label>
+                        </div>
+                        <div class="input-group" style="margin-top: 16px;">
+                            <label>Background (Image/GIF/Video)</label>
+                            <label class="file-upload-label" style="display: block; width: 100%; padding: 12px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.2); border-radius: 8px; text-align: center; cursor: pointer; color: #ededed; transition: all 0.3s;">
+                                <span id="background-file-name">Click to upload background</span>
+                                <input type="file" id="input-background-file" accept="image/*,video/mp4,video/quicktime,video/webm,video/ogg" style="display: none;">
+                            </label>
+                        </div>
+                        <div class="input-group" style="margin-top: 16px;">
+                            <label>Bio</label>
+                            <textarea id="input-bio" placeholder="A short bio about yourself..." rows="3" style="width:100%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px 16px; color:#ededed; outline:none; resize:none; font-family:inherit;"></textarea>
+                        </div>
+                        <div class="input-group" style="margin-top: 16px;">
+                            <label>Location</label>
+                            <input type="text" id="input-location" placeholder="e.g. Istanbul, Turkey" style="width:100%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px 16px; color:#ededed; outline:none;">
+                        </div>
+                        <div class="input-group" style="margin-top: 16px;">
+                            <label>Discord ID (for Status Widget)</label>
+                            <input type="text" id="input-discord-id" placeholder="Your Discord User ID" style="width:100%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px 16px; color:#ededed; outline:none;">
+                        </div>
+                        <div class="input-group" style="margin-top: 16px;">
+                            <label>Background Music (Upload MP3)</label>
+                            <label class="file-upload-label" style="display: block; width: 100%; padding: 12px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.2); border-radius: 8px; text-align: center; cursor: pointer; color: #ededed; transition: all 0.3s;">
+                                <span id="music-file-name">Default Audio</span>
+                                <input type="file" id="input-music-file" accept="audio/*" style="display: none;">
+                            </label>
+                            <small style="display:block; margin-top:5px; opacity:0.5; font-size:11px;">Max 50MB allowed (Note: Large files may fail in local storage).</small>
+                        </div>
+                        <div class="input-group" style="margin-top: 16px;">
+                            <label>Music Title (Text)</label>
+                            <input type="text" id="input-music-title" placeholder="e.g. Song Name - Artist" style="width:100%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px 16px; color:#ededed; outline:none;">
+                        </div>
+                        <div class="input-group" style="margin-top: 16px;">
+                            <label>Custom Cursor (Image Upload)</label>
+                            <label class="file-upload-label" style="display: block; width: 100%; padding: 12px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.2); border-radius: 8px; text-align: center; cursor: pointer; color: #ededed; transition: all 0.3s;">
+                                <span id="cursor-file-name">Default Cursor</span>
+                                <input type="file" id="input-cursor-file" accept="image/*" style="display: none;">
+                            </label>
+                        </div>
+                        <div class="input-group" style="margin-top: 24px;">
+                            <label>Avatar Effect</label>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 8px;" id="effect-selector">
+                                <button class="effect-btn active" data-effect="none" style="padding:10px; background:rgba(255,255,255,0.03); color:#fff; border:1px solid rgba(255,255,255,0.1); border-radius:8px; cursor:pointer;">None</button>
+                                <button class="effect-btn" data-effect="angry" style="padding:10px; background:rgba(255,255,255,0.03); color:#fff; border:1px solid rgba(255,255,255,0.1); border-radius:8px; cursor:pointer;">Angry</button>
+                                <button class="effect-btn" data-effect="angel" style="padding:10px; background:rgba(255,255,255,0.03); color:#fff; border:1px solid rgba(255,255,255,0.1); border-radius:8px; cursor:pointer;">Angel</button>
+                                <button class="effect-btn" data-effect="wings" style="padding:10px; background:rgba(255,255,255,0.03); color:#fff; border:1px solid rgba(255,255,255,0.1); border-radius:8px; cursor:pointer;">Shadow Wings</button>
+                            </div>
+                        </div>
+                        <div class="input-group" style="margin-top: 24px;">
+                            <label>Advanced Effects</label>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 8px;" id="extra-effects">
+                                <button class="extra-opt" data-extra="scanlines" style="padding:10px; background:rgba(255,255,255,0.03); color:#fff; border:1px solid rgba(255,255,255,0.1); border-radius:8px; cursor:pointer; font-size:12px;">Scanlines</button>
+                                <button class="extra-opt" data-extra="noise" style="padding:10px; background:rgba(255,255,255,0.03); color:#fff; border:1px solid rgba(255,255,255,0.1); border-radius:8px; cursor:pointer; font-size:12px;">Noise Overlay</button>
+                                <button class="extra-opt" data-extra="snow" style="padding:10px; background:rgba(255,255,255,0.03); color:#fff; border:1px solid rgba(255,255,255,0.1); border-radius:8px; cursor:pointer; font-size:12px;">Snowfall</button>
+                                <button class="extra-opt" data-extra="rain" style="padding:10px; background:rgba(255,255,255,0.03); color:#fff; border:1px solid rgba(255,255,255,0.1); border-radius:8px; cursor:pointer; font-size:12px;">Rainfall</button>
+                                <button class="extra-opt" data-extra="sparkles" style="padding:10px; background:rgba(255,255,255,0.03); color:#fff; border:1px solid rgba(255,255,255,0.1); border-radius:8px; cursor:pointer; font-size:12px;">Click Sparkles</button>
+                                <button class="extra-opt" data-extra="visualizer" style="padding:10px; background:rgba(255,255,255,0.03); color:#fff; border:1px solid rgba(255,255,255,0.1); border-radius:8px; cursor:pointer; font-size:12px;">Music Visualizer</button>
+                                <button class="extra-opt" data-extra="guestbook" style="padding:10px; background:rgba(255,255,255,0.03); color:#fff; border:1px solid rgba(255,255,255,0.1); border-radius:8px; cursor:pointer; font-size:12px;">Guestbook</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Section: Analytics -->
+            <div id="section-analytics" class="dashboard-section" style="display: none;">
+                <header class="dashboard-header">
+                    <div class="header-content">
+                        <h1>Analytics</h1>
+                        <p class="subtitle">Track your performance.</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-primary save-btn">Save Changes</button>
+                        <a href="/profile" class="btn-secondary view-live-btn" target="_blank">View Live</a>
+                    </div>
+                </header>
+                
+                <div class="editor-section" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; text-align: center; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; margin-top: 20px;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: rgba(255,255,255,0.3); margin-bottom: 16px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <h2 style="color: #fff; margin-bottom: 8px; font-weight: 600;">Coming Soon</h2>
+                    <p style="color: rgba(255,255,255,0.5); max-width: 300px; font-size: 14px;">Detailed profile analytics and visitor tracking are currently under development.</p>
+                </div>
+            </div>
+
+            <!-- Section: Settings -->
+            <div id="section-settings" class="dashboard-section" style="display: none;">
+                <header class="dashboard-header">
+                    <div class="header-content">
+                        <h1>Settings</h1>
+                        <p class="subtitle">Manage your account.</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-primary save-btn">Save Changes</button>
+                        <a href="/profile" class="btn-secondary view-live-btn" target="_blank">View Live</a>
+                    </div>
+                </header>
+                
+                <div class="editor-section" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; text-align: center; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; margin-top: 20px;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: rgba(255,255,255,0.3); margin-bottom: 16px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <h2 style="color: #fff; margin-bottom: 8px; font-weight: 600;">Coming Soon</h2>
+                    <p style="color: rgba(255,255,255,0.5); max-width: 300px; font-size: 14px;">Advanced account settings and security management will be available shortly.</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Live Preview Area -->
+        <aside class="preview-sidebar">
+            <div class="preview-header">
+                <h3>Live Preview</h3>
+            </div>
+            <div class="phone-mockup">
+                <div class="phone-screen">
+                    <div class="preview-profile">
+                        <div class="avatar-wrapper" id="preview-avatar-wrapper">
+                            <div class="avatar-effect-overlay"></div>
+                            <div class="preview-avatar" style="position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                                <span id="preview-avatar-text" style="position: absolute; z-index: 1;"></span>
+                            </div>
+                        </div>
+                        <h2 class="preview-name" id="preview-name">@username</h2>
+                        <p class="preview-bio" id="preview-bio">Welcome to my digital world!</p>
+                    </div>
+                    <div class="preview-links" id="preview-links-container">
+                        <!-- Preview links injected here -->
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- Add Link Modal -->
+    <div class="modal-overlay" id="add-link-modal">
+        <div class="modal-box" style="max-width: 400px; text-align: center; background: rgba(10,10,10,0.9); backdrop-filter: blur(20px);">
+            <button class="close-modal" id="close-add-link">&times;</button>
+            <h3 style="margin-bottom: 25px; color: #fff; font-size: 20px;">Select Platform</h3>
+            <div class="social-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                <button class="social-select-btn" data-platform="instagram" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px 10px; color: #fff; cursor: pointer; transition: 0.2s;">Instagram</button>
+                <button class="social-select-btn" data-platform="twitter" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px 10px; color: #fff; cursor: pointer; transition: 0.2s;">Twitter (X)</button>
+                <button class="social-select-btn" data-platform="discord" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px 10px; color: #fff; cursor: pointer; transition: 0.2s;">Discord</button>
+                <button class="social-select-btn" data-platform="youtube" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px 10px; color: #fff; cursor: pointer; transition: 0.2s;">YouTube</button>
+                <button class="social-select-btn" data-platform="tiktok" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px 10px; color: #fff; cursor: pointer; transition: 0.2s;">TikTok</button>
+                <button class="social-select-btn" data-platform="spotify" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px 10px; color: #fff; cursor: pointer; transition: 0.2s;">Spotify</button>
+                <button class="social-select-btn" data-platform="github" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px 10px; color: #fff; cursor: pointer; transition: 0.2s;">GitHub</button>
+                <button class="social-select-btn" data-platform="custom" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px 10px; color: #fff; cursor: pointer; transition: 0.2s;">Custom</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Templates -->
+    <template id="link-editor-template">
+        <div class="link-card" data-id="">
+            <div class="drag-handle">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="5" r="1"></circle><circle cx="9" cy="19" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="5" r="1"></circle><circle cx="15" cy="19" r="1"></circle></svg>
+            </div>
+            <div class="platform-icon" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border-radius: 8px; margin-right: 12px;"></div>
+            <div class="link-inputs" style="flex: 1;">
+                <input type="text" class="link-title-input" placeholder="Title (e.g. Instagram)" style="margin-bottom: 4px;">
+                <input type="url" class="link-url-input" placeholder="URL (e.g. https://instagram.com/...)">
+            </div>
+            <button class="btn-delete-link" title="Delete Link">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            </button>
+        </div>
+    </template>
+
+    <script src="/dashboard.js"></script>
+</body>
+</html>

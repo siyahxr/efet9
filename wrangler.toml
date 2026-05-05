@@ -1,0 +1,8 @@
+name = "j2st"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = "."
+
+[[d1_databases]]
+binding = "DB"
+database_name = "j2st-db"
+database_id = "5e8a2cdf-5bdd-4180-8dae-b2c171f9d6e0"

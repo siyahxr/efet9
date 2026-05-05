@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J2ST - Admin Panel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        body {
+            background-color: #050505;
+            color: #ededed;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .auth-card {
+            background: rgba(15, 15, 15, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            display: none; /* Hidden by default until checked */
+        }
+
+        .auth-card h2 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: #ffffff;
+        }
+
+        .auth-card p {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 15px;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        .icon-wrapper {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px auto;
+        }
+
+        .icon-error {
+            background: rgba(248, 113, 113, 0.1);
+            color: #f87171;
+            border: 1px solid rgba(248, 113, 113, 0.2);
+        }
+
+        .icon-success {
+            background: rgba(74, 222, 128, 0.1);
+            color: #4ade80;
+            border: 1px solid rgba(74, 222, 128, 0.2);
+        }
+
+        .btn-home {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            background: #fff;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .btn-home:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Access Denied View -->
+    <div class="auth-card" id="denied-view">
+        <div class="icon-wrapper icon-error">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        </div>
+        <h2>Access Denied</h2>
+        <p>You do not have permission to access the admin panel. This area is restricted to authorized personnel only.</p>
+        <a href="/" class="btn-home">Return to Home</a>
+    </div>
+
+    <!-- Admin Dashboard View -->
+    <div class="auth-card" id="admin-view" style="max-width: 800px; padding: 40px 30px;">
+        <div class="icon-wrapper icon-success">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        </div>
+        <h2>Admin Panel</h2>
+        <p>System status is nominal. Here are the registered users.</p>
+        
+        <div style="background: rgba(0,0,0,0.5); border-radius: 8px; padding: 20px; text-align: left; margin-bottom: 25px;">
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 15px;">
+                <span style="color: rgba(255,255,255,0.5);">Total Users:</span>
+                <span id="total-users-count" style="color: #fff; font-weight: 600;">Fetching...</span>
+            </div>
+            
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.5);">
+                            <th style="padding: 10px 5px;">Username</th>
+                            <th style="padding: 10px 5px;">Method</th>
+                            <th style="padding: 10px 5px;">Registered At</th>
+                            <th style="padding: 10px 5px; text-align: right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table-body">
+                        <tr><td colspan="4" style="text-align:center; padding: 10px;">Loading users...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <a href="/dashboard" class="btn-home">Go to Dashboard</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const currentUser = localStorage.getItem('j2st_currentUser');
+            const deniedView = document.getElementById('denied-view');
+            const adminView = document.getElementById('admin-view');
+
+            // Allow only 'siyah' or '$'
+            if (currentUser && (currentUser.toLowerCase() === 'siyah' || currentUser === '$')) {
+                adminView.style.display = 'block';
+                fetchUsers();
+            } else {
+                deniedView.style.display = 'block';
+            }
+        });
+
+        async function fetchUsers() {
+            try {
+                const response = await fetch('/api/admin/users');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        document.getElementById('total-users-count').textContent = data.users.length;
+                        const tbody = document.getElementById('users-table-body');
+                        tbody.innerHTML = '';
+                        
+                        data.users.forEach(u => {
+                            let dateStr = u.registered_at;
+                            if (dateStr !== 'Unknown') {
+                                try { dateStr = new Date(dateStr).toLocaleString(); } catch(e) {}
+                            }
+                            const tr = document.createElement('tr');
+                            tr.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+                            
+                            const isBanned = u.banned;
+                            const isFlagged = u.flagged;
+                            
+                            tr.innerHTML = `
+                                <td style="padding: 15px 5px; color: #fff;">
+                                    @${u.username}
+                                    ${isBanned ? '<span style="background: rgba(248,113,113,0.2); color: #f87171; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 5px;">Banned</span>' : ''}
+                                    ${isFlagged ? '<span style="background: rgba(250,204,21,0.2); color: #facc15; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 5px;">Flagged</span>' : ''}
+                                </td>
+                                <td style="padding: 15px 5px; color: #a1a1aa; text-transform: capitalize;">${u.method}</td>
+                                <td style="padding: 15px 5px; color: #a1a1aa;">${dateStr}</td>
+                                <td style="padding: 15px 5px; text-align: right;">
+                                    <a href="/${u.username}" target="_blank" style="color: #60a5fa; text-decoration: none; font-size: 12px; margin-right: 10px; padding: 4px 8px; background: rgba(96,165,250,0.1); border-radius: 4px;">View</a>
+                                    <button onclick="toggleAction('${u.username}', 'flag', ${!isFlagged})" style="background: ${isFlagged ? 'rgba(250,204,21,0.1)' : 'rgba(255,255,255,0.05)'}; color: ${isFlagged ? '#facc15' : '#fff'}; border: none; border-radius: 4px; padding: 4px 8px; font-size: 12px; cursor: pointer; margin-right: 5px;">
+                                        ${isFlagged ? 'Unflag' : 'Flag'}
+                                    </button>
+                                    <button onclick="toggleAction('${u.username}', 'ban', ${!isBanned})" style="background: ${isBanned ? 'rgba(248,113,113,0.1)' : 'rgba(255,255,255,0.05)'}; color: ${isBanned ? '#f87171' : '#fff'}; border: none; border-radius: 4px; padding: 4px 8px; font-size: 12px; cursor: pointer;">
+                                        ${isBanned ? 'Unban' : 'Ban'}
+                                    </button>
+                                </td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching users:", err);
+            }
+        }
+
+        async function toggleAction(targetUser, action, value) {
+            try {
+                const response = await fetch('/api/admin/action', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ target_user: targetUser, action: action, value: value })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    fetchUsers(); // reload table
+                } else {
+                    alert('Action failed: ' + data.error);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    </script>
+</body>
+</html>

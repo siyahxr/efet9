@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J2ST Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-color: #050505; --text-color: #ededed; --accent-color: #ededed; --card-bg: rgba(255, 255, 255, 0.03); --card-border: rgba(255, 255, 255, 0.08); --text-muted: rgba(255, 255, 255, 0.6); }
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: default; }
+        body { background-color: var(--bg-color); color: var(--text-color); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; transition: all 0.3s ease; overflow-x: hidden; position: relative; }
+
+        /* Overlays */
+        .scanlines { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 255, 0, 0.06)); z-index: 1000; background-size: 100% 4px, 3px 100%; pointer-events: none; opacity: 0.3; }
+        .noise { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: url('https://upload.wikimedia.org/wikipedia/commons/7/76/Noise_600x600.png'); opacity: 0.05; z-index: 1001; pointer-events: none; }
+        .bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+        #bg-particles, #env-particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+
+        .profile-container { width: 100%; max-width: 680px; display: none; flex-direction: column; align-items: center; z-index: 10; opacity: 0; transform: translateY(20px); transition: 1s cubic-bezier(0.23, 1, 0.32, 1); }
+        .profile-container.show { display: flex; opacity: 1; transform: translateY(0); }
+        
+        /* Avatar & Effects */
+        .avatar-wrapper { position: relative; width: 130px; height: 130px; margin-bottom: 25px; display: flex; align-items: center; justify-content: center; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .avatar-wrapper:hover { transform: scale(1.08) rotate(2deg); }
+        .avatar-effect-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; height: 100%; background-repeat: no-repeat; background-position: center; z-index: 3; pointer-events: none; display: none; }
+        .avatar-wrapper.angry .avatar-effect-overlay { display: block; background-image: url('avatareffect/kizgin.gif'); width: 160px; height: 160px; background-size: 100%; }
+        .avatar-wrapper.angel .avatar-effect-overlay { display: block; background-image: url('avatareffect/melek.gif'); width: 150px; height: 150px; background-size: contain; transform: translate(-50%, -58%); }
+        .avatar-wrapper.wings .avatar-effect-overlay { display: block; background-image: url('avatareffect/yitik.gif'); width: 170px; height: 170px; background-size: contain; }
+        .avatar { width: 130px; height: 130px; border-radius: 50%; background: linear-gradient(135deg, #222, #000); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 42px; font-weight: 800; box-shadow: 0 10px 40px rgba(0,0,0,0.8); position: relative; overflow: hidden; z-index: 2; border: 1px solid var(--card-border); background-size: cover; background-position: center; }
+        
+        .display-name { font-size: 26px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
+        .badge-container { display: flex; align-items: center; gap: 5px; }
+        .badge-item { display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; color: var(--accent-color); opacity: 0.8; position: relative; cursor: help; }
+        .badge-item::after { content: attr(data-title); position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%) translateY(5px); background: rgba(0,0,0,0.9); color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; white-space: nowrap; opacity: 0; pointer-events: none; transition: 0.2s; border: 1px solid rgba(255,255,255,0.1); text-transform: uppercase; letter-spacing: 1px; z-index: 100; }
+        .badge-item:hover::after { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .bio { font-size: 14px; color: var(--text-muted); text-align: center; margin-bottom: 20px; max-width: 420px; line-height: 1.6; }
+        .location-box { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); margin-bottom: 30px; opacity: 0.8; }
+        
+        /* Discord Card */
+        .discord-card { background: var(--card-bg); backdrop-filter: blur(20px); border: 1px solid var(--card-border); border-radius: 20px; padding: 14px 20px; display: flex; align-items: center; gap: 15px; width: 100%; max-width: 320px; margin-bottom: 35px; transition: 0.3s; }
+        .discord-card:hover { transform: translateY(-4px); background: rgba(255,255,255,0.06); }
+        .discord-avatar-container { position: relative; width: 48px; height: 48px; }
+        .discord-avatar { width: 100%; height: 100%; border-radius: 50%; background: #222; }
+        .discord-status-dot { position: absolute; bottom: 1px; right: 1px; width: 13px; height: 13px; border-radius: 50%; border: 3px solid #050505; background: #747f8d; }
+        .discord-info h4 { font-size: 14px; color: #fff; font-weight: 700; }
+        .discord-info p { font-size: 11px; color: var(--text-muted); }
+
+        /* Links Section */
+        .links-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 35px; width: 100%; max-width: 400px; }
+        .link-badge { width: 54px; height: 54px; background: var(--card-bg); backdrop-filter: blur(20px); border: 1px solid var(--card-border); border-radius: 16px; display: flex; align-items: center; justify-content: center; color: var(--text-color); transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1); text-decoration: none; position: relative; overflow: hidden; }
+        .link-badge:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.2); box-shadow: 0 10px 25px rgba(0,0,0,0.3); color: #fff; }
+        .link-badge::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); transition: 0.5s; }
+        .link-badge:hover::before { left: 100%; }
+        .link-badge svg { width: 24px; height: 24px; filter: drop-shadow(0 0 8px rgba(255,255,255,0.2)); }
+
+        /* Others */
+        .j2st-branding { font-size: 10px; opacity: 0.4; text-decoration: none; color: inherit; font-weight: 800; letter-spacing: 2.5px; display: flex; align-items: center; gap: 8px; transition: 0.3s; text-transform: uppercase; margin-top: 20px; }
+        #enter-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #050505; z-index: 100000; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.8s; }
+        #enter-overlay.hide { opacity: 0; pointer-events: none; }
+        .enter-text { font-size: 14px; font-weight: 800; letter-spacing: 12px; text-transform: uppercase; color: #fff; opacity: 0.6; animation: pulse 2s infinite; }
+
+        .sparkle { position: fixed; width: 4px; height: 4px; background: #fff; border-radius: 50%; pointer-events: none; z-index: 20000; animation: sparkleAnim 0.8s forwards; }
+        @keyframes sparkleAnim { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(0) translate(var(--x), var(--y)); opacity: 0; } }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.05); } }
+    </style>
+</head>
+<body>
+    <div id="enter-overlay"><div class="enter-text">Click to Enter</div></div>
+    <div class="bg-overlay"><canvas id="bg-particles"></canvas><canvas id="env-particles"></canvas></div>
+    
+    <div id="content" class="profile-container"></div>
+
+    <script>
+        const dbName = "J2ST_DB", storeName = "assets";
+        const getAsset = (key) => new Promise((res) => {
+            const req = indexedDB.open(dbName, 2);
+            req.onsuccess = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains(storeName)) { res(null); return; }
+                const tx = db.transaction(storeName, "readonly");
+                const store = tx.objectStore(storeName);
+                const getReq = store.get(key);
+                getReq.onsuccess = () => res(getReq.result);
+                getReq.onerror = () => res(null);
+            };
+            req.onerror = () => res(null);
+        });
+
+        const SOCIAL_ICONS = {
+            instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>',
+            twitter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg>',
+            discord: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="12" r="1"></circle><circle cx="15" cy="12" r="1"></circle><path d="M21 11.5c0-4.69-3.31-8.5-7.39-8.5-4.08 0-7.39 3.81-7.39 8.5 0 .48.04.94.12 1.39A2.96 2.96 0 0 1 3 15.5c0 1.66 1.34 3 3 3h12c1.66 0 3-1.34 3-3a2.96 2.96 0 0 1-3.73-2.61c.08-.45.12-.91.12-1.39z"></path></svg>',
+            youtube: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.42a2.78 2.78 0 0 0-1.94 2C1 8.16 1 12 1 12s0 3.84-.46 5.58a2.78 2.78 0 0 0 1.94 2C5.12 20 12 20 12 20s6.88 0 8.6-.42a2.78 2.78 0 0 0 1.94 2C23 15.84 23 12 23 12s0-3.84-.46-5.58z"></path><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"></polygon></svg>',
+            tiktok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path><path d="M15 8a5 5 0 0 1 5 5"></path></svg>',
+            custom: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>'
+        };
+
+        const BADGE_ICONS = {
+            staff: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>',
+            premium: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>',
+            verified: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>',
+            supporter: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>'
+        };
+
+        // Background Particles
+        (function() {
+            const canvas = document.getElementById('bg-particles');
+            if (canvas) {
+                const ctx = canvas.getContext('2d'); let pts = [];
+                const res = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }; window.addEventListener('resize', res); res();
+                for(let i=0; i<60; i++) pts.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: (Math.random()-0.5)*0.3, vy: (Math.random()-0.5)*0.3, s: Math.random()*1.5 });
+                const render = () => { ctx.clearRect(0,0,canvas.width,canvas.height); pts.forEach(p => { p.x+=p.vx; p.y+=p.vy; if(p.x<0||p.x>canvas.width||p.y<0||p.y>canvas.height){ p.x=Math.random()*canvas.width; p.y=Math.random()*canvas.height; } ctx.beginPath(); ctx.arc(p.x,p.y,p.s,0,Math.PI*2); ctx.fillStyle='rgba(255,255,255,0.25)'; ctx.fill(); }); requestAnimationFrame(render); };
+                render();
+            }
+        })();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const overlay = document.getElementById('enter-overlay');
+            const mainContent = document.getElementById('content');
+
+            // Attach click handler immediately (don't wait for async data)
+            if (overlay) {
+                overlay.onclick = () => {
+                    overlay.classList.add('hide'); 
+                    if (mainContent) mainContent.classList.add('show');
+                    setTimeout(() => overlay.remove(), 800);
+                    
+                    // Trigger audio if music is loaded later
+                    if (window.pendingMusic) {
+                        const a = new Audio(window.pendingMusic); a.loop = true; a.play().catch(e => console.error('Audio play failed:', e));
+                    }
+                    window.overlayRemoved = true;
+                };
+            }
+
+            // Start loading data async
+            (async () => {
+                try {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    let username = urlParams.get('u');
+                    
+                    if (!username) {
+                        const path = window.location.pathname.replace(/^\/|\/$/g, ''); 
+                        const systemPaths = ['profile', 'dashboard', 'shop', 'checkout', 'index.html', 'login', 'signup', ''];
+                        if (path && !systemPaths.includes(path)) username = path;
+                    }
+                    
+                    if (!username) {
+                        document.body.innerHTML = '<div style="color:white; text-align:center; padding-top:100px; font-family: sans-serif;"><h2>User not found</h2><p style="opacity:0.6;">The profile you are looking for does not exist.</p><a href="/" style="color:white; margin-top:20px; display:inline-block;">Go to Homepage</a></div>';
+                        return;
+                    }
+                    
+                    let profileData = null;
+                    try {
+                        const response = await fetch(`/api/profile?u=${username}`);
+                        if (response.ok) {
+                            const json = await response.json();
+                            if (json.success) profileData = json;
+                        }
+                    } catch (err) { console.error('API Error:', err); }
+
+                    const localAppearance = JSON.parse(localStorage.getItem(`j2st_appearance_${username}`)) || {};
+                    const localLinks = JSON.parse(localStorage.getItem(`j2st_links_${username}`)) || [];
+                    
+                    const appearance = profileData ? (profileData.appearance || {}) : localAppearance;
+                    const links = profileData ? (profileData.links || []) : localLinks;
+                    const badges = profileData ? (profileData.badges || []) : (appearance?.badges || []);
+                    const extraEffects = appearance?.extraEffects || [];
+
+                    const [avatarData, backgroundData, musicData] = await Promise.all([
+                        getAsset(`${username}_avatar`),
+                        getAsset(`${username}_background`),
+                        getAsset(`${username}_music`)
+                    ]);
+
+                    if (musicData) {
+                        window.pendingMusic = musicData;
+                        if (window.overlayRemoved) {
+                            const a = new Audio(musicData); a.loop = true; a.play().catch(e => console.error('Audio play failed:', e));
+                        }
+                    }
+
+                    const linksHtml = links.map(l => l.url ? `<a href="${l.url}" target="_blank" class="link-badge">${SOCIAL_ICONS[l.platform] || SOCIAL_ICONS.custom}</a>` : '').join('');
+                    document.body.style.fontFamily = appearance.font || 'Inter';
+                    const dispName = profileData ? profileData.display_name : (appearance?.displayName || username);
+                    document.title = `${dispName} | J2ST`;
+
+                    if (extraEffects.includes('scanlines')) { const d = document.createElement('div'); d.className='scanlines'; document.body.appendChild(d); }
+                    if (extraEffects.includes('noise')) { const d = document.createElement('div'); d.className='noise'; document.body.appendChild(d); }
+                    
+                    if (extraEffects.includes('sparkles')) {
+                        document.addEventListener('click', (e) => {
+                            for(let i=0; i<8; i++) {
+                                const s = document.createElement('div'); s.className='sparkle';
+                                s.style.left = e.clientX + 'px'; s.style.top = e.clientY + 'px';
+                                s.style.setProperty('--x', (Math.random()-0.5)*100 + 'px');
+                                s.style.setProperty('--y', (Math.random()-0.5)*100 + 'px');
+                                document.body.appendChild(s);
+                                setTimeout(() => s.remove(), 800);
+                            }
+                        });
+                    }
+
+                    if (extraEffects.includes('snow') || extraEffects.includes('rain')) {
+                        const canvas = document.getElementById('env-particles');
+                        const ctx = canvas.getContext('2d');
+                        let particles = [];
+                        const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+                        window.addEventListener('resize', resize); resize();
+                        
+                        const isRain = extraEffects.includes('rain');
+                        for(let i=0; i<100; i++) particles.push({
+                            x: Math.random() * canvas.width,
+                            y: Math.random() * canvas.height,
+                            v: isRain ? (Math.random()*10 + 5) : (Math.random()*2 + 1),
+                            s: isRain ? 1 : (Math.random()*3 + 1),
+                            o: Math.random()
+                        });
+
+                        function drawEnv() {
+                            ctx.clearRect(0,0,canvas.width,canvas.height);
+                            ctx.fillStyle = isRain ? 'rgba(174,194,224,0.5)' : 'rgba(255,255,255,0.8)';
+                            particles.forEach(p => {
+                                p.y += p.v; if(p.y > canvas.height) p.y = -10;
+                                ctx.beginPath();
+                                if(isRain) ctx.rect(p.x, p.y, 1, 10);
+                                else ctx.arc(p.x, p.y, p.s, 0, Math.PI*2);
+                                ctx.fill();
+                            });
+                            requestAnimationFrame(drawEnv);
+                        }
+                        drawEnv();
+                    }
+
+                    if (backgroundData) {
+                        if (backgroundData.startsWith('data:video/')) {
+                            const v = document.createElement('video'); v.src = backgroundData; v.autoplay=v.loop=v.muted=v.playsInline=true;
+                            v.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:-2;';
+                            document.body.appendChild(v);
+                        } else { document.body.style.background = `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url(${backgroundData}) center/cover no-repeat fixed`; }
+                    }
+
+                    const viewer = localStorage.getItem('j2st_currentUser');
+                    let analytics = JSON.parse(localStorage.getItem(`j2st_analytics_${username}`)) || { views: 0 };
+                    if (viewer && viewer !== username) { analytics.views += 1; localStorage.setItem(`j2st_analytics_${username}`, JSON.stringify(analytics)); }
+
+                    if (mainContent) {
+                        const flaggedWarning = profileData && profileData.flagged ? `
+                            <div style="background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); color: #f87171; padding: 12px; border-radius: 8px; margin-bottom: 25px; font-size: 13px; font-weight: 600; text-align: center; display: flex; align-items: center; justify-content: center;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                                WARNING: This user has been flagged as suspicious by J2ST Administrators.
+                            </div>
+                        ` : '';
+
+                        mainContent.innerHTML = `
+                            ${flaggedWarning}
+                            <div class="avatar-wrapper ${appearance?.avatarEffect || ''}">
+                                <div class="avatar-effect-overlay"></div>
+                                <div class="avatar" style="background-image: url('${avatarData || ''}')">${!avatarData ? username[0].toUpperCase() : ''}</div>
+                            </div>
+                            <h2 class="display-name">${dispName}</h2>
+                            <p class="bio">${profileData ? profileData.bio : (appearance?.bio || 'No bio yet.')}</p>
+                            <div class="location-box"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>${profileData ? profileData.location : (appearance?.location || 'Internet')}</div>
+                            <div class="discord-card" id="discord-card" style="display: ${appearance?.discordId ? 'flex' : 'none'}">
+                                <div class="discord-avatar-container">
+                                    <img src="" class="discord-avatar" id="ds-avatar">
+                                    <div class="discord-status-dot" id="ds-status"></div>
+                                </div>
+                                <div class="discord-info">
+                                    <h4 id="ds-name">Loading...</h4>
+                                    <p id="ds-activity">Fetching status...</p>
+                                </div>
+                            </div>
+                            <div class="links-container">${linksHtml}</div>
+                            <div style="font-size:10px;opacity:0.3;margin-bottom:30px;display:flex;align-items:center;gap:5px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>${analytics.views} views</div>
+                            <a href="/" class="j2st-branding"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>Powered by J2ST</a>
+                        `;
+                    }
+
+                    // Env Particles (Snow/Rain)
+                    const envCanvas = document.getElementById('env-particles');
+                    if (envCanvas && (extraEffects.includes('snow') || extraEffects.includes('rain'))) {
+                        const ctx = envCanvas.getContext('2d'); let pts = [];
+                        const res = () => { envCanvas.width = window.innerWidth; envCanvas.height = window.innerHeight; }; window.addEventListener('resize', res); res();
+                        const type = extraEffects.includes('rain') ? 'rain' : 'snow';
+                        for(let i=0; i<100; i++) pts.push({ x: Math.random()*envCanvas.width, y: Math.random()*envCanvas.height, vy: type==='rain'?5:1, vx: (Math.random()-0.5)*0.5, s: type==='rain'?1:2 });
+                        const render = () => { ctx.clearRect(0,0,envCanvas.width,envCanvas.height); pts.forEach(p => { p.y+=p.vy; p.x+=p.vx; if(p.y>envCanvas.height) p.y=-10; ctx.beginPath(); if(type==='rain'){ctx.moveTo(p.x,p.y);ctx.lineTo(p.x,p.y+10);ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.stroke();}else{ctx.arc(p.x,p.y,p.s,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.4)';ctx.fill();} }); requestAnimationFrame(render); };
+                        render();
+                    }
+
+                    // Discord Status
+                    if (appearance.discordId) {
+                        const update = async () => {
+                            try {
+                                const r = await fetch(`https://api.lanyard.rest/v1/users/${appearance.discordId}`);
+                                const d = await r.json();
+                                if (d.success) {
+                                    const u = d.data;
+                                    const dsAvatar = document.getElementById('ds-avatar');
+                                    const dsName = document.getElementById('ds-name');
+                                    const dsStatus = document.getElementById('ds-status');
+                                    const dsActivity = document.getElementById('ds-activity');
+                                    if (dsAvatar) dsAvatar.src = `https://cdn.discordapp.com/avatars/${u.discord_user.id}/${u.discord_user.avatar}.png`;
+                                    if (dsName) dsName.textContent = u.discord_user.global_name || u.discord_user.username;
+                                    if (dsStatus) {
+                                        const colors = { online: '#43b581', idle: '#faa61a', dnd: '#f04747', offline: '#747f8d' };
+                                        dsStatus.style.background = colors[u.discord_status] || colors.offline;
+                                    }
+                                    if (dsActivity) {
+                                        const act = u.activities?.find(a => a.type === 0) || u.activities?.[0];
+                                        dsActivity.textContent = act ? (act.type === 0 ? 'Playing ' : '') + act.name : u.discord_status;
+                                    }
+                                }
+                            } catch(e) { console.error('Discord Status Error:', e); }
+                        };
+                        update(); setInterval(update, 30000);
+                    }
+                } catch (err) {
+                    console.error('Fatal Profile Error:', err);
+                    if (mainContent) mainContent.innerHTML = `<div style="color:white; text-align:center; padding:20px;"><h2>Something went wrong</h2><p>${err.message}</p></div>`;
+                }
+            })();
+        });
+    </script>
+</body>
+</html>

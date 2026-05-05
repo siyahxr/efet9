@@ -1,0 +1,89 @@
+{
+    "profiles": {
+        "$": {
+            "username": "$",
+            "display_name": "@$",
+            "bio": "hi stalker",
+            "location": "hell",
+            "discord_id": "1199813840699916432",
+            "appearance": {
+                "displayName": "@$",
+                "bio": "hi stalker",
+                "theme": "dark",
+                "avatarEffect": "wings",
+                "location": "hell",
+                "discordId": "1199813840699916432",
+                "badges": [],
+                "musicTitle": "Background Music",
+                "extraEffects": [
+                    "scanlines",
+                    "noise",
+                    "snow",
+                    "rain",
+                    "sparkles",
+                    "visualizer"
+                ],
+                "font": "Inter"
+            },
+            "links": [
+                {
+                    "id": "1778011048652",
+                    "platform": "custom",
+                    "title": "Custom",
+                    "url": "https://discord.gg/1841"
+                },
+                {
+                    "id": "1778011699691",
+                    "platform": "twitter",
+                    "title": "Twitter",
+                    "url": "https://x.com/sss"
+                },
+                {
+                    "id": "1778013805170",
+                    "platform": "discord",
+                    "title": "Discord",
+                    "url": "https://discord.com/users/1841"
+                }
+            ],
+            "music_title": "Background Music"
+        },
+        "xsd": {
+            "username": "xsd",
+            "display_name": "@xsd",
+            "bio": "Welcome!",
+            "location": "",
+            "discord_id": "",
+            "appearance": {
+                "displayName": "@xsd",
+                "bio": "Welcome!",
+                "theme": "dark",
+                "avatarEffect": "none",
+                "location": "",
+                "discordId": "",
+                "badges": [],
+                "musicTitle": "Background Music",
+                "extraEffects": [],
+                "font": "Inter"
+            },
+            "badges": [],
+            "links": [],
+            "music_title": "Background Music"
+        }
+    },
+    "users": {
+        "$": {
+            "password": "efe2008efe"
+        },
+        "xsd": {
+            "password": "efe2008efe"
+        },
+        "siyah": {
+            "password": "efe2008efe"
+        },
+        "siyahbaba": {
+            "password": "efe2008efe",
+            "registered_at": "2026-05-05T20:27:08.371163Z",
+            "method": "manual"
+        }
+    }
+}
