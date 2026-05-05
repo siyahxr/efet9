@@ -422,19 +422,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                         formData.append('file', file);
                         formData.append('key', `${currentUser}_${key}`);
 
-                        const res = await fetch('/api/upload-file', {
+                        const res = await fetch('/upload-asset', {
                             method: 'POST',
                             body: formData
                         });
 
+                        console.log("[DEBUG] Upload Status:", res.status);
+                        
                         let result;
                         const responseText = await res.text();
+                        console.log("[DEBUG] Raw Response:", responseText);
                         
+                        if (!responseText) {
+                            throw new Error("Server returned an empty response. This might be a Cloudflare configuration issue.");
+                        }
+
                         try {
                             result = JSON.parse(responseText);
                         } catch (parseError) {
-                            console.error("Server raw response:", responseText);
-                            throw new Error("Server returned an invalid response. Check console for details.");
+                            throw new Error("Invalid JSON from server: " + responseText.substring(0, 50));
                         }
 
                         if (!res.ok || !result.success) {
